@@ -3,14 +3,17 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [fact, setFact] = useState<string>("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [geminiFact, setGeminiFact] = useState<string>("");
+  const [ollamaFact, setOllamaFact] = useState<string>("");
+  const [geminiLoading, setGeminiLoading] = useState(false);
+  const [ollamaLoading, setOllamaLoading] = useState(false);
+  const [geminiError, setGeminiError] = useState<string>("");
+  const [ollamaError, setOllamaError] = useState<string>("");
 
-  const generateFact = async () => {
-    setLoading(true);
-    setError("");
-    setFact("");
+  const generateGeminiFact = async () => {
+    setGeminiLoading(true);
+    setGeminiError("");
+    setGeminiFact("");
     try {
       const res = await fetch("/api/fact");
       if (!res.ok) {
@@ -18,11 +21,30 @@ export default function Home() {
         throw new Error(data.error || "Failed to fetch fact");
       }
       const data = await res.json();
-      setFact(data.fact);
+      setGeminiFact(data.fact);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      setGeminiError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
-      setLoading(false);
+      setGeminiLoading(false);
+    }
+  };
+
+  const generateOllamaFact = async () => {
+    setOllamaLoading(true);
+    setOllamaError("");
+    setOllamaFact("");
+    try {
+      const res = await fetch("/api/fact-ollama");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to fetch fact");
+      }
+      const data = await res.json();
+      setOllamaFact(data.fact);
+    } catch (err) {
+      setOllamaError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setOllamaLoading(false);
     }
   };
 
@@ -50,20 +72,42 @@ export default function Home() {
   return (
     <main className="container">
       <h1>Fun Fact</h1>
-      <button onClick={generateFact} disabled={loading}>
-        {loading ? "Thinking..." : "Tell me a fun fact"}
-      </button>
-      {error && <p className="error">{error}</p>}
-      {fact && (
-        <p className="fact">
-          {parseFact(fact).map((seg, i) =>
-            seg.bold ? <strong key={i}>{seg.text}</strong> : <span key={i}>{seg.text}</span>
+
+      <div className="row">
+        <section>
+          <button onClick={generateGeminiFact} disabled={geminiLoading}>
+            {geminiLoading ? "Thinking..." : "Gemini"}
+          </button>
+          {geminiError && <p className="error">{geminiError}</p>}
+          {geminiFact && (
+            <p className="fact">
+              {parseFact(geminiFact).map((seg, i) =>
+                seg.bold ? <strong key={i}>{seg.text}</strong> : <span key={i}>{seg.text}</span>
+              )}
+            </p>
           )}
-        </p>
-      )}
-      {!fact && !loading && !error && (
-        <p className="muted">Click the button to generate a fun fact.</p>
-      )}
+          {!geminiFact && !geminiLoading && !geminiError && (
+            <p className="muted">Powered by Google Gemini</p>
+          )}
+        </section>
+
+        <section>
+          <button onClick={generateOllamaFact} disabled={ollamaLoading}>
+            {ollamaLoading ? "Thinking..." : "Ollama (Local)"}
+          </button>
+          {ollamaError && <p className="error">{ollamaError}</p>}
+          {ollamaFact && (
+            <p className="fact">
+              {parseFact(ollamaFact).map((seg, i) =>
+                seg.bold ? <strong key={i}>{seg.text}</strong> : <span key={i}>{seg.text}</span>
+              )}
+            </p>
+          )}
+          {!ollamaFact && !ollamaLoading && !ollamaError && (
+            <p className="muted">Powered by Ollama (localhost)</p>
+          )}
+        </section>
+      </div>
     </main>
   );
 }

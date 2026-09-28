@@ -31,6 +31,16 @@ body {
   gap: 2rem;
 }
 
+.row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.row > section + section {
+  border-left: 1px solid var(--muted);
+}
+
 h1 {
   font-size: 1.5rem;
   font-weight: 500;
@@ -58,18 +68,52 @@ button:disabled {
 }
 
 .fact {
-  max-width: 32rem;
-  font-size: 1.125rem;
+  max-width: 20rem;
+  font-size: 1rem;
   color: var(--fg);
   min-height: 2rem;
 }
 
 .muted {
   color: var(--muted);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+}
+
+.fact,
+.muted,
+.error {
+  margin-top: 0.75rem;
+}
+
+.row > section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 1 0;
+  max-width: 22rem;
+  padding: 0 2rem;
 }
 
 .error {
   color: #c00;
   font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+  .row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .row > section {
+    max-width: none;
+    width: 100%;
+    padding: 0;
+  }
+
+  .row > section + section {
+    border-left: none;
+    border-top: 1px solid var(--muted);
+    padding-top: 1.5rem;
+  }
 }
